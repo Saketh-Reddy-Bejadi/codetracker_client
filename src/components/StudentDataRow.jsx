@@ -1,7 +1,8 @@
+import React from "react";
 import { MdOutlineStar } from "react-icons/md";
 import { CheckCircle } from "lucide-react";
 
-const StudentDataRow = ({ row, showDetails }) => {
+const StudentDataRow = React.memo(({ row, showDetails }) => {
   return showDetails ? (
     <tr className={`whitespace-nowrap text-center`}>
       <td className="px-4 py-5">{row.serial}</td>
@@ -52,6 +53,8 @@ const StudentDataRow = ({ row, showDetails }) => {
       <td>{row.totalScore}</td>
     </tr>
   );
-};
+});
+
+StudentDataRow.displayName = 'StudentDataRow';
 
 export default StudentDataRow;

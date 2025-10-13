@@ -1,7 +1,7 @@
 import React from "react";
 import StudentDataRow from "./StudentDataRow";
 
-const StudentData = ({ data, showDetails }) => {
+const StudentData = React.memo(({ data, showDetails }) => {
   return (
     <>
       <tbody>
@@ -13,6 +13,8 @@ const StudentData = ({ data, showDetails }) => {
       </tbody>
     </>
   );
-};
+});
+
+StudentData.displayName = 'StudentData';
 
 export default StudentData;

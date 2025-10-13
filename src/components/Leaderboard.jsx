@@ -5,11 +5,7 @@ import Attributes from "./Attributes";
 import StudentData from "./StudentData";
 import SkeletonLoader from "./SkeletonLoader";
 import TopLoader from "./TopLoader";
-import {
-  fetchUsers,
-  transformUserData,
-  fetchScrapingStats,
-} from "../services/api";
+import { fetchUsers, fetchScrapingStats } from "../services/api";
 import { useDebounce } from "../hooks/useDebounce";
 
 const Leaderboard = () => {
@@ -23,14 +19,16 @@ const Leaderboard = () => {
 
   const debouncedSearch = useDebounce(search, 400);
 
-  // Load all data once
+  // Load all data once - no transformation needed
   const loadData = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
       const response = await fetchUsers(batch);
-      const transformedData = transformUserData(response.users);
-      setAllData(transformedData);
+      const stats = await fetchScrapingStats(batch);
+      setScrapingStats(stats);
+      // Data is already in frontend format from backend
+      setAllData(response.users);
     } catch (err) {
       setError(err.message);
     } finally {
@@ -45,30 +43,7 @@ const Leaderboard = () => {
     }
   }, [batch, loadData]);
 
-  // Load scraping stats
-  useEffect(() => {
-    const loadStats = async () => {
-      try {
-        const stats = await fetchScrapingStats(batch);
-        setScrapingStats(stats);
-      } catch (err) {
-        setError(err.message);
-      }
-    };
-
-    if (batch) {
-      loadStats();
-    }
-  }, [batch]);
-
-  const searchableData = useMemo(() => {
-    return allData.map((user) => ({
-      ...user,
-      searchString:
-        `${user.rollNumber} ${user.codeforces.handle} ${user.gfg.handle} ${user.leetcode.handle} ${user.codechef.handle} ${user.hackerRank.handle}`.toLowerCase(),
-    }));
-  }, [allData]);
-
+  // Optimized search - use pre-generated searchString from backend
   const filteredData = useMemo(() => {
     if (!debouncedSearch.trim()) {
       return allData;
@@ -76,11 +51,11 @@ const Leaderboard = () => {
 
     const searchTerm = debouncedSearch.trim().toLowerCase();
 
-    // Optimized search using filter with early return
-    return allData.filter((user, index) => {
-      return searchableData[index]?.searchString.includes(searchTerm);
+    // Direct search using pre-generated searchString
+    return allData.filter((user) => {
+      return user.searchString?.includes(searchTerm);
     });
-  }, [searchableData, allData, debouncedSearch]);
+  }, [allData, debouncedSearch]);
 
   const displayedData = filteredData;
 
