@@ -111,10 +111,12 @@ const UserProfile = () => {
         setEditing(false);
         fetchProfile(); // Refresh profile data
       } else if (response.status === 422) {
-        // CMRIT verification failed
         setVerificationError({
-          message: data.error,
-          failedPlatforms: data.failedPlatforms
+          message: data.message || data.error,
+          details: data.details || {},
+          nonExistentUsers: data.details?.nonExistentUsers || [],
+          notVerifiedPlatforms: data.details?.notVerifiedPlatforms || [],
+          summary: data.details?.summary || {}
         });
       } else if (response.status === 503 || response.status === 429) {
         // Service temporarily unavailable or rate limited
@@ -238,17 +240,6 @@ const UserProfile = () => {
                         : "Unknown"}
                   </span>
                 </div>
-                <div className="flex items-center space-x-2">
-                  <Clock className="w-5 h-5 text-zinc-500" />
-                  <span className="text-sm text-zinc-400">
-                    Score updates:{" "}
-                    {restrictions.canUpdateScores === true
-                      ? "Available"
-                      : restrictions.canUpdateScores === false
-                        ? "Cooldown active"
-                        : "Unknown"}
-                  </span>
-                </div>
                 {restrictions.nextHandleUpdate && (
                   <div className="flex items-center space-x-2">
                     <Clock className="w-5 h-5 text-zinc-500" />
@@ -306,16 +297,6 @@ const UserProfile = () => {
                   <AlertTriangle className="w-4 h-4 sm:w-5 sm:h-5 flex-shrink-0 mt-0.5 sm:mt-0" />
                   <div className="min-w-0 flex-1">
                     <p className="text-sm sm:text-base break-words">{error}</p>
-                    {(error.includes("try again") || error.includes("temporarily") || error.includes("minutes")) && (
-                      <div className="mt-2 p-2 bg-yellow-900/30 border border-yellow-700/50 rounded text-xs sm:text-sm">
-                        <div className="flex items-center gap-1">
-                          <Clock className="w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0" />
-                          <span className="text-yellow-200">
-                            This is a temporary issue. The system will be available again shortly.
-                          </span>
-                        </div>
-                      </div>
-                    )}
                   </div>
                 </div>
               </div>
@@ -324,7 +305,7 @@ const UserProfile = () => {
             {updating && (
               <div className="bg-blue-900/50 border border-blue-700 text-blue-300 px-4 py-3 rounded-md mb-4 flex items-center gap-2">
                 <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-400"></div>
-                <span>Verifying institution information...</span>
+                <span>Verifying User Handles...</span>
               </div>
             )}
 
@@ -336,17 +317,36 @@ const UserProfile = () => {
             )}
 
             {verificationError && (
-              <div className="bg-red-900/50 border border-red-700 text-red-300 px-3 sm:px-4 py-3 rounded-md mb-4">
-                <div className="flex items-start sm:items-center gap-2 mb-2">
+              <div className="bg-red-900/50 border border-red-700 text-red-300 px-3 sm:px-4 py-3 rounded-md mb-4 space-y-3">
+                <div className="flex items-start sm:items-center gap-2">
                   <AlertTriangle className="w-4 h-4 sm:w-5 sm:h-5 flex-shrink-0 mt-0.5 sm:mt-0" />
-                  <span className="font-medium text-sm sm:text-base">Verification failed</span>
+                  <span className="font-medium text-sm sm:text-base">Verification Failed</span>
                 </div>
-                {verificationError.failedPlatforms && verificationError.failedPlatforms.length > 0 && (
-                  <div className="text-xs sm:text-sm">
-                    <span className="font-medium">Failed platforms: </span>
-                    <span className="text-red-200 break-words">
-                      {verificationError.failedPlatforms.join(", ")}
-                    </span>
+
+                {/* Usernames not found */}
+                {verificationError.nonExistentUsers && verificationError.nonExistentUsers.length > 0 && (
+                  <div>
+                    <div className="font-medium text-sm mb-2">Usernames not found:</div>
+                    <div className="flex flex-wrap gap-2">
+                      {verificationError.nonExistentUsers.map((platform, index) => (
+                        <span key={index} className="bg-red-700/50 px-2 py-1 rounded text-xs">
+                          {platform}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                )}
+                {/* Usernames not verified */}
+                {verificationError.notVerifiedPlatforms && verificationError.notVerifiedPlatforms.length > 0 && (
+                  <div>
+                    <div className="font-medium text-sm mb-2">Usernames not verified:</div>
+                    <div className="flex flex-wrap gap-2">
+                      {verificationError.notVerifiedPlatforms.map((platform, index) => (
+                        <span key={index} className="bg-yellow-700/50 px-2 py-1 rounded text-xs">
+                          {platform.platform}
+                        </span>
+                      ))}
+                    </div>
                   </div>
                 )}
               </div>
