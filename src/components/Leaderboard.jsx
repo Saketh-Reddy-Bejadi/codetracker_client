@@ -14,12 +14,12 @@ const Leaderboard = () => {
   const [search, setSearch] = useState("");
   const [scrapingStats, setScrapingStats] = useState(null);
   const [allData, setAllData] = useState([]);
+  const [displayedData, setDisplayedData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
   const debouncedSearch = useDebounce(search, 400);
 
-  // Load all data once - no transformation needed
   const loadData = useCallback(async () => {
     try {
       setLoading(true);
@@ -27,37 +27,44 @@ const Leaderboard = () => {
       const response = await fetchUsers(batch);
       const stats = await fetchScrapingStats(batch);
       setScrapingStats(stats);
-      // Data is already in frontend format from backend
-      setAllData(response.users);
+      
+      const users = response.users;
+      setAllData(users);
+      
+      setDisplayedData(users.slice(0, 200));
+      setLoading(false);
+      
+      if (users.length > 300) {
+        for (let i = 200; i < users.length; i += 200) {
+          setTimeout(() => {
+            setDisplayedData(prev => [...prev, ...users.slice(i, i + 200)]);
+          }, (i / 200) * 50);
+        }
+      }
     } catch (err) {
       setError(err.message);
-    } finally {
       setLoading(false);
     }
   }, [batch]);
 
-  // Initial load
   useEffect(() => {
     if (batch) {
       loadData();
     }
   }, [batch, loadData]);
 
-  // Optimized search - use pre-generated searchString from backend
   const filteredData = useMemo(() => {
     if (!debouncedSearch.trim()) {
-      return allData;
+      return displayedData;
     }
 
     const searchTerm = debouncedSearch.trim().toLowerCase();
-
-    // Direct search using pre-generated searchString
     return allData.filter((user) => {
       return user.searchString?.includes(searchTerm);
     });
-  }, [allData, debouncedSearch]);
+  }, [allData, displayedData, debouncedSearch]);
 
-  const displayedData = filteredData;
+  const finalData = debouncedSearch.trim() ? filteredData : displayedData;
 
   const handleSearchChange = useCallback((e) => {
     setSearch(e.target.value);
@@ -182,7 +189,7 @@ const Leaderboard = () => {
             />
             {loading ? (
               <SkeletonLoader showDetails={showDetails} />
-            ) : displayedData.length === 0 ? (
+            ) : finalData.length === 0 ? (
               <tbody>
                 <tr>
                   <td colSpan={showDetails ? 18 : 8} className="py-8 px-4">
@@ -221,7 +228,7 @@ const Leaderboard = () => {
               </tbody>
             ) : (
               <StudentData
-                data={displayedData}
+                data={finalData}
                 showDetails={showDetails}
                 setShowDetails={setShowDetails}
                 showSerialNumber={true}
