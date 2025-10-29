@@ -3,15 +3,22 @@ import { useState } from "react";
 
 const GoogleLogin = () => {
   const [batch, setBatch] = useState("");
+  const [error, setError] = useState("");
 
   const handleGoogleLogin = async () => {
     if (!batch) {
-      alert("Batch parameter is missing!");
+      setError("⚠️ Please select a batch before proceeding.");
       return;
     }
+    setError("");
     const apiUrl =
       import.meta.env.VITE_API_BASE_URL;
     window.location.href = `${apiUrl}/api/auth/${batch}/google-login?frontendOrigin=${window.location.origin}&prompt=select_account`;
+  };
+
+  const handleSelectChange = (e) => {
+    setBatch(e.target.value);
+    if (e.target.value) setError("");
   };
 
   return (
@@ -36,7 +43,7 @@ const GoogleLogin = () => {
           <select
             id="batch-select"
             value={batch}
-            onChange={(e) => setBatch(e.target.value)}
+            onChange={handleSelectChange}
             className="
     w-full p-3 px-5 rounded-xl bg-black/95 border border-zinc-800 text-white
     placeholder-zinc-400
@@ -50,6 +57,7 @@ const GoogleLogin = () => {
             <option value="2026">2026</option>
             <option value="2027">2027</option>
           </select>
+          {error && (<div className="text-red-500 text-sm mt-2">{error}</div>)}
         </div>
 
         <button

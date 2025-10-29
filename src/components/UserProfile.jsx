@@ -85,6 +85,25 @@ const UserProfile = () => {
   };
 
   const handleUpdateHandles = async () => {
+    // Check if all usernames are entered
+    const requiredPlatforms = ['GeeksForGeeksHandle', 'CodeforcesHandle', 'LeetCodeHandle', 'CodeChefHandle'];
+    const missingPlatforms = requiredPlatforms.filter(platform => !handles[platform] || !handles[platform].trim());
+
+    if (missingPlatforms.length > 0) {
+      const platformNames = {
+        'GeeksForGeeksHandle': 'GeeksforGeeks',
+        'CodeforcesHandle': 'Codeforces',
+        'LeetCodeHandle': 'LeetCode',
+        'CodeChefHandle': 'CodeChef'
+      };
+      const missingNames = missingPlatforms.map(p => platformNames[p]).join(', ');
+      setError(`
+        Please enter usernames for all platforms. 
+        Missing: 
+        ${missingNames}`);
+      return;
+    }
+
     setUpdating(true);
     setError("");
     setSuccess("");
