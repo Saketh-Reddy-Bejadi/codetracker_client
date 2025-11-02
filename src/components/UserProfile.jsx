@@ -20,16 +20,32 @@ const UserProfile = () => {
   const [success, setSuccess] = useState("");
   const [verificationError, setVerificationError] = useState(null);
 
-  const formatTimestamp = (timestamp) => {
-    if (!timestamp) return "N/A";
-    try {
-      const date = new Date(timestamp);
-      const day = date.getDate();
-      const month = date.getMonth() + 1;
-      const year = date.getFullYear();
-      const time = date.toLocaleTimeString();
-      return `${day}/${month}/${year}, ${time}`;
-    } catch {
+  const [timeLeft, setTimeLeft] = useState("");
+  const [isDisabled, setIsDisabled] = useState(false);
+
+  
+  useEffect(() => {
+  const endTime = new Date("2025-11-03T00:00:00");
+  
+  const timer = setInterval(() => {
+    const diff = endTime - new Date();
+    setTimeLeft(diff > 0 ? diff : 0);
+    setIsDisabled(diff <= 0);
+  }, 1000);
+
+  return () => clearInterval(timer);
+}, []);
+
+  const formatTime = (ms) => {
+    if (!ms) return "N/A";
+    try{
+      const totalSeconds = Math.floor(ms / 1000);
+      const hours = String(Math.floor(totalSeconds / 3600)).padStart(2, "0");
+      const minutes = String(Math.floor((totalSeconds % 3600) / 60)).padStart(2, "0");
+      const seconds = String(totalSeconds % 60).padStart(2, "0");
+      return `${hours}:${minutes}:${seconds}`;
+    }
+    catch {
       return "Invalid timestamp";
     }
   };
@@ -204,7 +220,7 @@ const UserProfile = () => {
       <div className="relative z-10 flex flex-col items-center justify-center min-h-screen px-4 py-5">
         <div className="max-w-4xl mx-auto px-4 mt-20">
           {/* Header */}
-          <div className="backdrop-blur-sm bg-black/30 border border-zinc-800/50 rounded-2xl p-6 mb-6">
+          <div className="backdrop-blur-sm bg-zinc-900/60 border-[1.5px] border-zinc-800 rounded-2xl p-6 mb-6">
             <div className="flex items-center justify-between mb-6">
               <div className="flex items-center space-x-4">
                 {profile.picture ? (
@@ -247,24 +263,20 @@ const UserProfile = () => {
 
             {/* Restrictions Info */}
             {restrictions && (
-              <div className="grid md:grid-cols-2 gap-4">
+              <div className="flex flex-wrap items-center gap-4 px-3">
                 <div className="flex items-center space-x-2">
                   <Clock className="w-5 h-5 text-zinc-500" />
-                  <span className="text-sm text-zinc-400">
-                    Handle updates:{" "}
-                    {restrictions.canUpdateHandles === true
-                      ? "Available"
-                      : restrictions.canUpdateHandles === false
-                        ? "Cooldown active"
-                        : "Unknown"}
+                  <span className="text-md text-zinc-400">
+                    Next Handle updates: NA
                   </span>
                 </div>
-                {restrictions.nextHandleUpdate && (
-                  <div className="flex items-center space-x-2">
-                    <Clock className="w-5 h-5 text-zinc-500" />
-                    <span className="text-sm text-zinc-400">
-                      Next handle update:{" "}
-                      {formatTimestamp(restrictions.nextHandleUpdate)}
+                {!profile.isHandlesVerified && (
+                  <div className="flex items-center font-semibold space-x-2 ">
+                    <Clock className="w-5 h-5 text-red-500" />
+                    <span className="text-md text-red-500">
+                        {isDisabled
+                        ? "Username Update window closed!"
+                        : `Time left: ${formatTime(timeLeft)}`}
                     </span>
                   </div>
                 )}
@@ -273,12 +285,12 @@ const UserProfile = () => {
           </div>
 
           {/* Handles Section */}
-          <div className="backdrop-blur-sm bg-black/30 border border-zinc-800/50 rounded-2xl p-6">
+          <div className="backdrop-blur-sm bg-zinc-900/60 border-[1.5px] border-zinc-800 rounded-2xl p-6">
             <div className="flex items-center justify-between mb-6">
               <h2 className="text-lg font-semibold text-white">
                 Coding Platform Handles
               </h2>
-              {!editing && restrictions?.canUpdateHandles === true && (
+              {!editing && restrictions?.canUpdateHandles === true && !isDisabled && (
                 <button
                   onClick={() => setEditing(true)}
                   className="flex items-center gap-1 cursor-pointer bg-zinc-900 px-5 xl:py-2 py-2 rounded-lg hover:bg-zinc-950 transition-all duration-300 border border-zinc-800"
@@ -375,9 +387,9 @@ const UserProfile = () => {
               {PLATFROMS_DATA && PLATFROMS_DATA.length > 0 ? PLATFROMS_DATA.map((platform) => (
                 <div
                   key={platform.key}
-                  className="p-2 rounded-2xl bg-zinc-800/15 shadow-md border border-zinc-200/10 hover:shadow-xl hover:border-zinc-300/20 hover:scale-105 transition-transform duration-300 ease-out cursor-pointer flex items-center justify-evenly gap-2"
+                  className="p-1 rounded-xl bg-zinc-800/40 shadow-md border-[1.5px] border-zinc-200/10 hover:shadow-xl hover:border-zinc-300/20 hover:scale-105 transition-transform duration-300 ease-out cursor-pointer flex items-center justify-evenly gap-2 px-5"
                 >
-                  <div className="flex items-center justify-between">
+                  <div className="flex items-center justify-between ">
                     {/* Platform Logo */}
                     <div className="">
                       <div className="w-10 h-10 flex items-center justify-center rounded-xl bg-zinc-800/40 group-hover:bg-zinc-700/50 transition">
@@ -403,7 +415,7 @@ const UserProfile = () => {
                       }
                       placeholder={`Enter ${platform.name} handle`}
                       disabled={updating}
-                      className="w-full px-3 py-2 border border-zinc-700/30 rounded-lg text-white placeholder:text-zinc-400 focus:outline-none transition disabled:opacity-50 disabled:cursor-not-allowed"
+                      className="w-full px-3 py-2 border border-none rounded-lg text-white placeholder:text-zinc-400 focus:outline-none transition disabled:opacity-50 disabled:cursor-not-allowed"
                     />
                   ) : (
                     <p className="text-zinc-300 font-medium">
@@ -417,18 +429,6 @@ const UserProfile = () => {
                 </div>
               )}
             </div>
-
-            {restrictions?.canUpdateHandles === false && (
-              <div className="mt-4 p-4 bg-yellow-900/50 border border-yellow-700 rounded-md">
-                <div className="flex items-center space-x-2">
-                  <Clock className="w-5 h-5 text-yellow-400" />
-                  <span className="text-yellow-300">
-                    Handle updates are on cooldown. You can update again on{" "}
-                    {formatTimestamp(restrictions.nextHandleUpdate)}.
-                  </span>
-                </div>
-              </div>
-            )}
           </div>
         </div>
       </div>
