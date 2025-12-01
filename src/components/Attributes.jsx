@@ -2,7 +2,7 @@ import { IoMdMore } from "react-icons/io";
 import { Link } from "react-router-dom";
 import { Info } from "lucide-react";
 
-const Attributes = ({ showDetails, setShowDetails }) => {
+const Attributes = ({ showDetails, setShowDetails, setLoading }) => {
   return (
     <>
       <thead className="sticky top-0 whitespace-nowrap bg-black text-lgz-1000 z-10">
@@ -11,11 +11,19 @@ const Attributes = ({ showDetails, setShowDetails }) => {
             rowSpan={`${showDetails ? "2" : ""}`}
             className="border border-zinc-800"
           >
-            <IoMdMore
-              className="w-full m-auto"
-              size={30}
-              onClick={() => setShowDetails(!showDetails)}
-            />
+            <button className="border-2 p-1.5 rounded-full border-transparent border-pulse cursor-pointer">
+              <IoMdMore
+                className="w-full m-auto"
+                size={30}
+                onClick={async () => {
+                  setLoading(true);
+                  await setShowDetails(!showDetails);
+                  setTimeout(() => {
+                    setLoading(false);
+                  }, 100);
+                }}
+              />
+            </button>
           </th>
           <th rowSpan={`${showDetails ? "2" : ""}`} className=" px-4 py-5">
             Roll Number

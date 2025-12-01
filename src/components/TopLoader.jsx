@@ -14,21 +14,25 @@ const TopLoader = ({ isVisible }) => {
       // Gradual, smooth fake loading effect
       interval = setInterval(() => {
         setProgress((prev) => {
-          if (prev < 90) return prev + Math.random() * 8;
-          return prev;
+          if (prev < 90) return prev;
+          const increment = (90 - prev) * 0.05;
+          return prev + increment;
         });
-      }, 180);
+      }, 60);
     } else if (!isVisible && visible) {
       // Finish and fade out
-      setProgress(100);
-      setTimeout(() => {
-        setVisible(false);
-        setProgress(0);
-      }, 600);
+      const timeout = setTimeout(() => {
+        setProgress(100);
+        setTimeout(() => {
+          setVisible(false);
+          setProgress(0);
+        }, 300);
+      }, 120);
+      return () => clearTimeout(timeout);
     }
 
     return () => clearInterval(interval);
-  }, [isVisible, visible]);
+  }, [isVisible]);
 
   if (!visible) return null;
 
@@ -40,7 +44,7 @@ const TopLoader = ({ isVisible }) => {
         style={{
           width: `${progress}%`,
           background:
-            "linear-gradient(90deg, #3f3f46 0%, #a1a1aa 40%, #d4d4d8 80%, #71717a 100%)",
+            "linear-gradient(90deg, #D3D3FF 0%, #a1a1aa 40%, #D3D3FF 80%, #D3D3FF 100%)",
           transition: "width 0.35s ease-out, opacity 0.6s ease-out",
           opacity: progress >= 100 ? 0 : 1,
         }}
@@ -48,10 +52,10 @@ const TopLoader = ({ isVisible }) => {
 
       {/* Moving shimmer line */}
       <div
-        className="absolute top-0 h-full w-[15%] opacity-40"
+        className="absolute top-0 h-full w-[30%] opacity-40"
         style={{
           background:
-            "linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent)",
+            "linear-gradient(90deg, transparent, #D3D3FF, transparent)",
           left: `${progress - 20}%`,
           animation: "shimmerMove 1.5s linear infinite",
         }}

@@ -10,7 +10,7 @@ import { useDebounce } from "../hooks/useDebounce";
 
 const Leaderboard = () => {
   const { batch } = useParams();
-  const [showDetails, setShowDetails] = useState(true);
+  const [showDetails, setShowDetails] = useState(false);
   const [search, setSearch] = useState("");
   const [scrapingStats, setScrapingStats] = useState(null);
   const [allData, setAllData] = useState([]);
@@ -27,17 +27,17 @@ const Leaderboard = () => {
       const response = await fetchUsers(batch);
       const stats = await fetchScrapingStats(batch);
       setScrapingStats(stats);
-      
+
       const users = response.users;
       setAllData(users);
-      
+
       setDisplayedData(users.slice(0, 200));
       setLoading(false);
-      
+
       if (users.length > 300) {
         for (let i = 200; i < users.length; i += 200) {
           setTimeout(() => {
-            setDisplayedData(prev => [...prev, ...users.slice(i, i + 200)]);
+            setDisplayedData((prev) => [...prev, ...users.slice(i, i + 200)]);
           }, (i / 200) * 50);
         }
       }
@@ -120,6 +120,8 @@ const Leaderboard = () => {
               <Attributes
                 showDetails={showDetails}
                 setShowDetails={setShowDetails}
+                loading={loading}
+                setLoading={setLoading}
               />
               <SkeletonLoader showDetails={showDetails} />
             </table>
@@ -140,7 +142,7 @@ const Leaderboard = () => {
   return (
     <>
       <TopLoader isVisible={false} />
-      <div className="overflow-hidden">
+      <div className="overflow-hidden select-none">
         {/* Mobile Layout */}
         <div className="md:hidden p-4 bg-black border-b border-zinc-800">
           <div className="flex flex-col space-y-4">
@@ -186,6 +188,8 @@ const Leaderboard = () => {
             <Attributes
               showDetails={showDetails}
               setShowDetails={setShowDetails}
+              loading={loading}
+              setLoading={setLoading}
             />
             {loading ? (
               <SkeletonLoader showDetails={showDetails} />
