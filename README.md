@@ -1,32 +1,32 @@
-# CodeTrackr: Competitive Programming Leaderboard
+# CodeTracker: Competitive Programming Leaderboard
 
-CodeTrackr is a web application designed to track and display competitive programming performance for students. It provides a unified leaderboard by scraping and syncing scores from various platforms, allowing users to monitor their progress and compete with peers. The application also features a secure handle update mechanism using OTP verification.
+CodeTracker is a powerful web application designed to track and visualize competitive programming performance for students. It aggregates data from multiple platforms, providing a unified leaderboard and personalized insights for batches and individual students. The system ensures data privacy through institutional email authentication and offers a modern, interactive experience.
 
 ## Features
 
-*   **Dynamic Leaderboards:** View sorted leaderboards for different batches (e.g., 2026, 2027) with student performance metrics across multiple competitive programming platforms.
-*   **Search Functionality:** Easily search for students by roll number or competitive programming handles.
-*   **Handle Management:** Securely update competitive programming handles via an email OTP verification process.
-*   **Real-time Scraping Stats:** Displays the last updated timestamp for the leaderboard data.
-*   **Responsive Design:** Optimized for both mobile and desktop viewing.
-*   **Interactive UI:** Utilizes `magicui` components for enhanced visual appeal.
+*   **Institutional Authentication:** Secure Google Login restricted to institutional email addresses (e.g., `@cmrithyderabad.edu.in`).
+*   **Dynamic Leaderboards:** Real-time performance tracking for different batches (e.g., 2026, 2027) with metrics across various platforms.
+*   **Personal Dashboard:** Each student gets a dedicated dashboard to view their historical performance and platform-specific stats.
+*   **User Profiles:** Manage and update handles for multiple competitive programming platforms from a single interface.
+*   **Real-time Scraping Updates:** Visual indicators for the latest leaderboard data refreshes.
+*   **Search and Filter:** Quickly find students by roll number or specific handles within their batch.
+*   **Interactive UI:** Modern design with smooth transitions and animated components for a premium user experience.
 
 ## Technologies Used
 
 *   **Frontend:**
-    *   React.js: A JavaScript library for building user interfaces.
-    *   Vite: A fast build tool for modern web projects.
-    *   Tailwind CSS: A utility-first CSS framework for rapid UI development.
-    *   `@tailwindcss/vite`: Tailwind CSS integration for Vite.
-    *   `react-router-dom`: Declarative routing for React.js.
-    *   `axios`: Promise-based HTTP client for API requests.
-    *   `clsx` and `tailwind-merge`: Utilities for conditionally joining CSS class names.
-    *   `lucide-react`, `react-icons`: Icon libraries.
-    *   `motion`: Animation library.
-    *   `magicui`: Custom UI components (`AnimatedGridPattern`, `ShimmerButton`).
+    *   React 19: The latest version of the JavaScript library for building user interfaces.
+    *   Vite 7: A next-generation frontend tool that focuses on speed and performance.
+    *   Tailwind CSS 4: A utility-first CSS framework for rapid UI development.
+    *   `react-router-dom`: Declarative routing for React applications.
+    *   `axios`: Promise-based HTTP client for API communication.
+    *   `jwt-decode`: Library for decoding JSON Web Tokens.
+    *   `clsx` and `tailwind-merge`: Utilities for efficient Tailwind CSS class management.
+    *   `lucide-react`, `react-icons`: Comprehensive icon sets.
+    *   `motion`: Modern animation library for fluid UI transitions.
+    *   `magicui`: High-performance UI components for enhanced aesthetics.
 *   **Linting:**
-    *   ESLint: Pluggable JavaScript linter.
-    *   `@eslint/js`, `eslint-plugin-react-hooks`, `eslint-plugin-react-refresh`: ESLint configurations and plugins for React.
+    *   ESLint: Modern JavaScript and React linting configuration.
 
 ## Project Structure
 
@@ -35,34 +35,27 @@ CodeTrackr is a web application designed to track and display competitive progra
 ├── public/
 │   └── Codetrackr.svg       # Application logo
 ├── src/
-│   ├── components/
-│   │   ├── Attributes.jsx      # Table header for leaderboard
-│   │   ├── Footer.jsx          # Application footer with navigation and links
-│   │   ├── HandleUpdate.jsx    # Component for updating user handles with OTP
-│   │   ├── Hero.jsx            # Landing page hero section
-│   │   ├── Home.jsx            # Home page component
-│   │   ├── LeaderBoardOutline.jsx # Main leaderboard display component
-│   │   ├── SkeletonLoader.jsx  # Loading skeleton for the leaderboard
-│   │   ├── StudentData.jsx     # Displays individual student data in the leaderboard
-│   │   └── magicui/            # Custom UI components
-│   │       ├── animated-grid-pattern.jsx
-│   │       └── shimmer-button.jsx
+│   ├── components/          # React components
+│   │   ├── dashboard/       # Dashboard-specific components
+│   │   ├── magicui/         # Animated UI components
+│   │   ├── Leaderboard.jsx  # Main leaderboard component
+│   │   ├── UserProfile.jsx  # User profile and handle management
+│   │   ├── Navbar.jsx       # Main navigation component
+│   │   └── ...              # Other UI and layout components
+│   ├── contexts/
+│   │   └── AuthContext.jsx  # Authentication state management
+│   ├── hooks/
+│   │   └── useDebounce.js   # Custom React hooks
 │   ├── lib/
-│   │   └── utils.js            # Utility functions (e.g., for Tailwind CSS class merging)
+│   │   └── utils.js         # Utility functions
 │   ├── services/
-│   │   └── api.js              # API service for interacting with the backend
-│   ├── App.jsx                 # Main application component with routing
-│   ├── index.css               # Global styles and Tailwind CSS imports
-│   └── main.jsx                # React entry point
-├── .gitignore                  # Git ignore patterns
-├── components.json             # Configuration for UI components (likely shadcn/ui related)
-├── eslint.config.js            # ESLint configuration
-├── index.html                  # Main HTML file
-├── jsconfig.json               # JavaScript compiler options and path aliases
-├── package-lock.json           # npm dependency lock file
-├── package.json                # Project metadata and dependencies
-├── README.md                   # Project README
-└── vercel.json                 # Vercel deployment configuration
+│   │   └── api.js           # API service layer
+│   ├── App.jsx              # Main application with routing
+│   ├── index.css            # Global styles and Tailwind imports
+│   └── main.jsx             # Entry point
+├── .env.example             # Example environment variables
+├── package.json             # Dependencies and scripts
+└── vite.config.js           # Vite configuration
 ```
 
 ## Getting Started
@@ -78,11 +71,11 @@ To get a local copy up and running, follow these simple steps.
 
 1.  Clone the repository:
     ```bash
-    git clone https://github.com/Saketh-Reddy-Bejadi/performance_tracker.git
+    git clone https://github.com/Saketh-Reddy-Bejadi/codetracker_client.git
     ```
 2.  Navigate to the project directory:
     ```bash
-    cd performance_tracker
+    cd codetracker_client
     ```
 3.  Install dependencies:
     ```bash
@@ -93,14 +86,13 @@ To get a local copy up and running, follow these simple steps.
 
 ### Environment Variables
 
-Create a `.env` file in the root of the project and add the following environment variables:
+Create a `.env` file in the root of the project and add the following environment variable:
 
 ```
 VITE_API_BASE_URL=YOUR_BACKEND_API_URL
-VITE_TOKEN=YOUR_AUTH_TOKEN
 ```
 
-Replace `YOUR_BACKEND_API_URL` with the base URL of your backend API and `YOUR_AUTH_TOKEN` with the appropriate authorization token.
+Replace `YOUR_BACKEND_API_URL` with the base URL of your backend API.
 
 ### Running the Application
 
